@@ -1,0 +1,83 @@
+Faux Battle Write Up
+CPSC 2120
+Lake Summers
+
+I created my own algorithm for this in which I attempt to deal the maximum damage possible.
+I do this by sorting yourUnits by power to start, and theirUnits by HP to start,
+then targeting all bestAgainst first for maximum initial damage. I also set their targetClass
+to be the class they are best against.
+I then repeat this process by sorting theirUnits by HP. This is because their HP's should be
+lower if any attacks occured. I then repeat the process by using my highest power unit with
+moves remaining to target theirUnit with the highest HP remaining.
+
+The algorithm was chosen because how long it takes to determine and return this
+plan factors into the outcome, so choosing the first thing in theirUnits that is the
+bestAgainst class and attacking until they're dead or you don't have speed left
+allows them to attack quickly and effectively. This is opposite of a different strategy
+I considered, which was looking for what has lowest HP and targeting that to get the most
+kills. Then once the bestAgainst attacks are done, attacking theirUnits in the order of highest HP
+remaining with the highest power yourUnit is the way to try and do the most total damage per turn.
+
+References:
+Sorting a vector of structs by a certain value of that struct (sorting by HP and power):
+    https://stackoverflow.com/questions/4892680/sorting-a-vector-of-structs
+
+
+Runtime complexity:
+O(n^3) where n is the number of units, because there is a triple nested for loop.
+Obviously this is slow, but I am making that tradeoff for maximum damage
+This may not be exact, but at least big O covers anything less
+
+Space Complexity:
+O(n) where n is the number of units, because I am storing values for each unit
+This may not be exact, but at least big O covers anything less
+
+Algorithm Explanation:
+    //QuickSort (take into account amortized)
+    Sort yourUnits by power (highest first)
+    //QuickSort (take into account amortized)
+    Sort theirUnits by currentHP (highest first)
+    
+    NOTE: I also considered sorting theirUnits by lowest currentHP first because there may be priority in
+    taking out any amount of units first rather than a focus on pure amount of damage dealt.
+    However, this runs the risk of wasting a lot of the power of yourUnits when attacking
+    theirUnits with low currentHP, so I decided to prioritize amount of damage dealt.
+    
+    Attack all bestAgainst first for maximum initial damage
+    HOW:
+        For each yourUnit
+            For each bestAgainst
+                For each theirUnit
+                    while (conditions 1-3)
+                    (1)theirUnit has the yourUnit's corresponding bestAgainst class,
+                    (2)their currentHP is > 0, and
+                    (3)the number of actions has not reached speed
+                        Attack
+                    If number of actions == speed
+                        break the search through theirUnits loop
+            If number of actions == speed
+                break the bestAgainst loop and go to next yourUnit
+    
+    After attacking all bestAgainst first, resort theirUnits by HP and attack highest HP with highest power until
+    everything is dead or all yourUnit's number of actions have reached their speed
+    HOW:
+        For all yourUnit 
+        With highest power yourUnit (will be first after sort, so you go in order), attack highest currentHP theirUnit
+            Attack until their currentHP is < 0 || number of moves has reached speed
+                If currentHP > 0 or number of actions has reached speed numMoves < speed
+                    move to next highest currentHP (next index)
+    
+        For each yourUnit
+            For each theirUnit
+                while (conditions 1 and 2)
+                (1)their currentHP is > 0 (not dead)
+                (2)the number of actions < speed (actions left)
+                    Attack
+                If number of actions == speed
+                    break the search through theirUnits loop and move to next yourUnit
+
+
+
+        
+        
+        

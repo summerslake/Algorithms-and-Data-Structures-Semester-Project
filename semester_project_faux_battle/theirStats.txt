@@ -1,0 +1,4 @@
+toBeAttackedBy_AntiTank heavy 80 1 1 1 heavy
+toBeAttackedBy_tanks medium 80 1 1 1 heavy
+toBeAttackedBy_tanks2 medium 96 1 1 1 heavy
+toBeAttackedBy_anything light 20 1 1 1 light

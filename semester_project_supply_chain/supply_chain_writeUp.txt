@@ -1,0 +1,170 @@
+Supply Chain Write Up
+CPSC 2120
+Lake Summers
+
+For this I implemented Ford Fulkerson. A lot of my implementation is inspired by
+the following youtube video explaining ford fulkerson with a breadth first search:
+https://www.youtube.com/watch?v=GoVjOT30xwo
+
+This video was sent to me by clemson username: tsallur
+and I forwarded it to the following people because they were having trouble
+with ford fulkerson as a concept: mgrimsl, jenekaw, colin7
+
+I wanted to let you know that I forwarded them the video in case they follow a similar
+design pattern so you'd know I wouldn't just copy off of them. The video is just psuedo
+code and an in depth explanation of how ford fulkerson can be implemented using an adjacency matrix,
+and I found it quite helpful for getting an idea of how to do a breadth first search as well.
+
+I chose Ford fulkerson because this problem was easily represented with a graph
+and the maximum throughput was needing to be found each time. I also knew that I would be able to
+easily complete the bonus objective of multiple starts and ends with one commodity after that.
+After coming to your office hours you reminded me of what we did in bipartite matching:
+Adding a synthetic source with edges to all the sources with infinite weight
+and adding a synthetic sink with edges to all the sources with infinite weight
+The only thing is that you just need to make sure these aren't included in the final output because
+those edges don't truly exist.
+So I added that to my code, and obviously it will still work for cases with only 1 start and source as well
+because it is simply just adding one extra edge at the beginning and end.
+
+Runtime complexity:
+O(n^2) where n is the number of nodes. This is because each node must be checked multiple times
+when looking for paths. 
+This may not be exact, but at least big O covers anything less
+
+Space Complexity:
+O(n) where n is the number of edges because we are storing values for each edge
+This may not be exact, but at least big O covers anything less
+
+Ford Fulkerson implementation Explanation:
+    Global Variables:
+        set of all cities: allCities
+        map of pair of cities to capacity and ID: citytoCapandID
+        map of each city to a parent (used in BFS): parent
+        
+    Functions:
+        readEdges(string)
+            read in the ID, startCity, endCity, capacity, and cost
+            map to respective values in citytoCapandID
+            
+        checkForPathBFS(startCity,endCity)
+            -reset the parent map
+            -make a map of city to bool true if visited false if not visited: cityVisited
+            -for all cities
+                mark visted as false
+            -make a queue
+            -add the startCity to the queue
+            -mark the startCity as visited
+            -make the parent of the startCity "source" or any string
+                this string will be used when backtracking as a stopping point
+            -while the queue isn't empty
+                pop the first thing off the queue and store it as currentCity
+                for all cities (referred to as nextCity from here on)
+                    If nextCity not visited and,
+                    the edge (currentCity,nextCity) exists and
+                    the capacity of the edge is > 0
+                        add the nextCity to the queue
+                        Mark nextCity as visited
+                        set the parent of the nextCity to currentCity
+                        
+            if the endCity was visited
+                return true
+            else
+                return false
+        
+        organizeLogistics(vector<pair<string,double>> start, vector<pair<string,double>> end):
+        
+            ****THIS IS WITH THE BONUS, BUT OBVIOUSLY IT STILL WORKS FOR THE BASE CASES***
+            
+            readEdges (use function readEdges) with worldmap.txt passed in
+            
+            make an unordered_map of ID's of edges to cargo put on them
+            
+            set maxCapacity to a large double
+            
+            Keep track of used edges with a vector
+            
+            ***Code added for bonus**
+            Add a node pointing to each start city (sources) with essentially infinite edge capacity
+            This way, they are not the limiting factor when doing multiple start and end locations
+            Add a node which edges from all end cities point to (sinks) with essentially infinite edge capacity
+            Set the ID of all these edges to an arbitrary thing so we know not to add them to the final map
+            Add these cities to allCities
+            
+        
+            while a path is available (Use BFS to check, which will update the parent map) 
+                reset the maxCapacity to be a large double 
+                reset the usedEdges
+                
+                backtrack through the parent map to get your list of used edges
+                    keep track of maxCapacity while doing this
+                
+                go through list of used edges
+                    for their ID's, update the final unordered_map
+                    **unless it is one of the edges that you added (where arbitrary ID comes in)
+                
+                update the citytoCapandID capacities so you can run the BFS again
+            
+            return your final unordered_map
+            
+        I had also originally implemented organizeLogistics where the double being passed in in the pair
+        was the amount of cargo you can possibly put through (regardless of the edge capacities).
+        Therefore, when the maxCapacity of a path was found, if there is less amount of cargo than
+        that maxCapacity, only add the amount of cargo. You then keep a running total of the amount
+        of cargo, and go until it is 0 or a path isn't found.
+        
+        I marked all the differences to the original algorithm
+        
+        This function is named organizeLogisticsWithCargoAmount and included at the bottom of the .h file
+                                                                    
+        organizeLogisticsWithCargoAmount(vector<pair<string,double>> start, vector<pair<string,double>> end):
+                                                             ^^ to clarify, this is the amount of cargo you start with
+        
+            readEdges (use function readEdges)
+            
+            set remainingCargo to starting cargo amount
+            
+            make an unordered_map of ID's of edges to cargo put on them
+            
+            set maxCapacity to a large double
+            
+            Keep track of used edges
+        
+            while a path is available (Use BFS to check, which will update the parent map) 
+                reset the maxCapacity to be a large double 
+                reset the usedEdges
+                
+                backtrack through the parent map to get your list of used edges
+                    keep track of maxCapacity while doing this
+                
+                **difference
+                if maxCapacity > remainingCargo (don't have enough cargo to take advantage of maxCapacity)
+                    set maxCapacity to remainingCargo
+                    
+                    
+                go through list of used edges
+                    for their ID's, update the final unordered_map by adding maxCapacity
+                
+                update the citytoCapandID capacities so you can run the BFS again
+                
+                **difference
+                update remainingCargo
+                    subtract maxCapacity
+                
+                **difference    
+                if remainingCargo is 0
+                    break out of the while loop
+                
+            return your final unordered_map 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        

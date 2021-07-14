@@ -1,0 +1,154 @@
+Global Note:
+In each of the files I included a global variable "DEBUG" set to false by default.
+If this is made true, all of my print statements I used to track the process through
+testing will be displayed
+
+
+Pathfinder Write up
+CPSC 2120
+Lake Summers
+
+I implemented a similar BFS to the one that I used when implementing ford fulkerson.
+It wasn't too difficult to figure out how it can apply so it was nice to be able to
+see how writing the pseudocode I did for that BFS helped a LOT here.
+I used BFS because although it is not the fastest, it does return the shortest path.
+I also thought of the following strategy for the bonus of avoiding bombs:
+    Treat bombs like walls (mark them visited) on the first run so that the BFS will
+    avoid them and still find the shortest path possible.
+    If the first run fails, treat bombs like empties (mark them unvisited at start)
+    and find the shortest path possible through the bombs.
+    Tradeoff of this bomb-avoidance method:
+        Although it is great at avoiding all bombs, if the BFS fails and it runs treating
+        bombs as empties, it could hit unnecessary bombs (any besides the one bomb that originally
+        prevented it from reaching the finish) when taking the shortest path
+References:
+Same video as in supplyChain which spoke about ford fulkerson and a BFS:
+https://www.youtube.com/watch?v=GoVjOT30xwo
+
+Inserting at beginning of vector:
+https://www.geeksforgeeks.org/vector-insert-function-in-c-stl/
+
+
+
+Runtime complexity:
+O(n^2) because it runs through the whole array and is called multiple times.
+However, the coefficient does not matter. 
+This may not be exact, but at least big O covers anything less
+
+Space Complexity:
+O(n^2) also, because I am storing a bool for each index in a map
+This may not be exact, but at least big O covers anything less
+
+Here is the breakdown of how I used the BFS to find the shortest path
+(this includes avoiding bombs if possible):
+    Global variables:
+        map of index to parentIndex
+            map<pair<int,int>,pair<int,int>> parent
+    
+    Functions:
+        ALL CHECKS USED IN BFS
+        checkLeft
+            if index is on left wall (currentIndex.second ==0)
+                return (-1,-1) (could be any pair of indexes outside of the 2D array)
+            else 
+                return currentIndex with -1 off column
+        checkRight
+            if index is on right wall (currentIndex.second ==cols-1)
+                return (-1,-1) (could be any pair of indexes outside of the 2D array)
+            else 
+                return currentIndex with +1 on column
+        checkDown
+            if index is on bottom wall (currentIndex.first ==rows-1)
+                return (-1,-1) (could be any pair of indexes outside of the 2D array)
+            else 
+                return currentIndex with +1 on row
+        checkUp
+            if index is on top wall (currentIndex.first ==0)
+                return (-1,-1) (could be any pair of indexes outside of the 2D array)
+            else 
+                return currentIndex with -1 off row
+        BFS
+            clear the parents map in case you have to run twice
+    
+            make pair to store start index
+                pair<int,int>
+            make map to store if index has been visited
+                map<pair<int,int>,bool> visited
+                
+            Go through whole array
+                mark walls as visited so they are never added to the queue
+                mark empties as unvisited
+                note index of start and mark unvisited
+                note index of finish and mark unvisited
+                if not 'w','e','s','f' then it is a bomb or gold
+                    if the passed in "failed" boolean is true
+                        mark bombs and gold as unvisited so they are treated like empties
+                    else
+                        mark bombs and gold as visited so they are treated like walls
+                
+            make queue to store nextIndex pair
+                queue<pair<int,int>> searchQueue
+                
+            push start onto queue
+            mark start as visited
+            make parent of start (999,999) or any pair that isn't an index in the map
+                this will be used to backtrack
+            
+            make pair to keep track of currentIndex
+            make pair to keep track of nextIndex (when searching in the 4 cardinal directions)
+            
+            while searchQueue isn't empty
+                set currentIndex = front of queue
+                pop off the front of the queue
+                
+                check all 4 cardinal direction using "check___" function for bounds checking
+                    set result to nextIndex
+                        if result != (-1,-1) (this is what is outputted by check function when
+                        out of range) &&
+                        if nextIndex hasn't been visited
+                            push nextIndex onto searchQueue
+                            mark it as visited
+                            update nextIndex's parent to be currentIndex
+                            
+            if finish was visited
+                return true
+            else 
+                return false
+                
+        pathfinder
+            declare boolean to keep track if BFS failed, and set to false because it hasn't failed
+            
+            if BFS failed because a path coudn't be found without a bomb (BFS(maze,failed) is false)
+                set failed to true
+                run BFS again (the failed boolean will change it to go through the bomb)
+            else
+                do nothing
+            
+            make moves vector
+            
+            go through parents map starting with finish until the parent is (999,999) as set in BFS
+                NOTE: keep in mind, backtracking so everything is reversed
+                if previous index was above (parent[index].first == index.first-1), last move was down
+                    insert 'D' onto front of moves (going backwards so thats why on front)
+                if previous index was below (parent[index].first == index.first+1), last move was up
+                    insert 'U' onto front of moves (going backwards so thats why on front)
+                if previous index was left (parent[index].second == index.second-1), last move was right
+                    insert 'L' onto front of moves (going backwards so thats why on front)
+                if previous index was below (parent[index].second == index.second+1), last move was left
+                    insert 'R' onto front of moves (going backwards so thats why on front)
+                make sure to update index so not caught in infinite loop
+            
+            return moves
+            
+        printArray
+            strictly used for testing, just prints contents of maze before and after pathfinder in my main
+            
+            
+            
+            
+            
+            
+            
+            
+        
+    
